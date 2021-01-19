@@ -8,8 +8,7 @@ TRUNK=${TRUNK_BRANCH:=master}
 case $GITHUB_REF in
   */"$TRUNK") echo "We are on $TRUNK, let's merge.";;
          *) echo "Not on $TRUNK (${GITHUB_REF}), do nothing."; exit 0;;
-esac
-
+esac 
 
 # Let's create a PR
 
@@ -99,5 +98,4 @@ EOF
       -H "Content-type: application/json" \
       -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
       -d "${payload}"
-    exit 1
 fi
