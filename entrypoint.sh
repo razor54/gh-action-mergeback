@@ -161,9 +161,14 @@ EOF
 EOF
 )
     fi
-    curl --silent --output /dev/null --fail \
+    tmp=$(mktemp)
+    curl --silent --output ${tmp} --fail \
       -H "Authorization: token ${GITHUB_TOKEN}" \
       -H "Content-type: application/json" \
       -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
       -d "${payload}"
+      output=$(cat ${tmp})
+      rm ${tmp}
+      #todo: remove
+      echo $output
 fi
