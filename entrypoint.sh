@@ -16,8 +16,6 @@ echo "Creating a temporary branch..."
 tmp=$(mktemp)
 TMP_BRANCH=mergeback-to-${BASE_BRANCH:=develop}
 SHA=$(curl --silent -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
-#todo:remove
-echo "sha: $SHA"
 tmp=$(mktemp)
 payload=$(cat <<EOF 
 {
@@ -33,9 +31,6 @@ status_code=$(curl --silent --output ${tmp}  \
     -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs \
     -d "${payload}")
 output=$(cat ${tmp})
-#todo:remove
-echo $output
-echo $status_code
 rm ${tmp}
 # Valid status codes
 # 201	Created
@@ -64,7 +59,6 @@ if test ${status_code} -eq 422; then #Existing branch
     fi
 fi
 
-
 # Let's create a PR
 
 echo "Creating a PR..."
@@ -84,6 +78,8 @@ status_code=$(curl --silent --output ${tmp} \
     -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls \
     -d "${payload}")
 output=$(cat ${tmp})
+#todo:remove
+echo "output: $output , staus: $status_code"
 rm ${tmp}
 
 if test ${status_code} -eq 422; then #Existing PR
