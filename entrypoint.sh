@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -e
 
 TRUNK=${TRUNK_BRANCH:=master}
 
