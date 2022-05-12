@@ -16,7 +16,7 @@ echo "Creating a temporary branch..."
 TMP_BRANCH=mergeback-to-${BASE_BRANCH:=develop}
 SHA=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
 tmp=$(mktemp)
-payload=(cat <<EOF
+payload=$(cat <<EOF 
 {
   "ref": "refs/heads/${TMP_BRANCH}",
   "sha": "${SHA}"
