@@ -20,6 +20,7 @@ output=$(cat ${tmp})
 rm ${tmp}
 #todo:remove
 echo $output
+echo $SHA
 tmp=$(mktemp)
 payload=$(cat <<EOF 
 {
@@ -32,7 +33,7 @@ status_code=$(curl --silent --output ${tmp}  \
     --write-out "%{http_code}" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -H "Content-type: application/json" \
-    -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs
+    -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs \
     -d "${payload}")
 output=$(cat ${tmp})
 #todo:remove
