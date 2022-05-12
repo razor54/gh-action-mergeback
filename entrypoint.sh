@@ -13,8 +13,13 @@ esac
 # First of all create a temporary branch
 # Useful for handling merge conflicts with protected branches
 echo "Creating a temporary branch..."
+tmp=$(mktemp)
 TMP_BRANCH=mergeback-to-${BASE_BRANCH:=develop}
-SHA=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
+SHA=$(curl --silent --output ${tmp} -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
+output=$(cat ${tmp})
+rm ${tmp}
+#todo:remove
+echo $output
 tmp=$(mktemp)
 payload=$(cat <<EOF 
 {
@@ -29,7 +34,10 @@ status_code=$(curl --silent --output ${tmp}  \
     -H "Content-type: application/json" \
     -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs
     -d "${payload}")
-ouput=$(cat ${tmp})
+output=$(cat ${tmp})
+#todo:remove
+echo $output
+echo $status_code
 rm ${tmp}
 # Valid status codes
 # 201	Created
@@ -47,6 +55,9 @@ if test ${status_code} -eq 422; then #Existing branch
         https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TMP_BRANCH} \
         -d '{"sha":"${SHA}","force":true}')
     output=$(cat ${tmp})
+    #todo:remove
+    echo $output
+    echo $status_code
     rm ${tmp}
     if test ${status_code} -ne 200; then
         echo "An error occured trying to update the temporary branch, status code ${status_code}"
