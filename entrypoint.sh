@@ -152,7 +152,6 @@ if test ${status_code} -ne 200; then
 EOF
 )
       # clean up payload
-      echo "payload: ${payload}"
     else
       echo "Requesting review from ${GITHUB_ACTOR}"
       payload=$(cat <<EOF 
@@ -164,6 +163,7 @@ EOF
 EOF
 )
     fi
+    echo "payload: ${payload}"
     tmp=$(mktemp)
     curl --silent --output ${tmp} \
       -H "Authorization: token ${GITHUB_TOKEN}" \
