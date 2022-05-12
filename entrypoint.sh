@@ -143,6 +143,7 @@ if test ${status_code} -ne 200; then
     echo $team_reviewers
     echo $reviewers
     if [[ ${#team_reviewers[@]} != 0 ]] || [[ ${#reviewers[@]} != 0 ]]; then
+        echo "Requesting reviews from ${team_reviewers} ${reviewers}"
         payload=$(cat << EOF 
 {
     "reviewers": $(jq -n --arg inarr "${reviewers}" '$inarr | split(",")' --compact-output),
@@ -169,6 +170,4 @@ EOF
       -d "${payload}"
       output=$(cat ${tmp})
       rm ${tmp}
-      #todo: remove
-      echo $output
 fi
