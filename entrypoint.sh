@@ -140,6 +140,8 @@ if test ${status_code} -ne 200; then
 
     team_reviewers=(${TEAM_REVIEWERS:-})
     reviewers=(${REVIEWERS:-})
+    echo $team_reviewers
+    echo $reviewers
     if [[ ${#team_reviewers[@]} != 0 ]] || [[ ${#reviewers[@]} != 0 ]]; then
         payload=$(cat << EOF 
 {
