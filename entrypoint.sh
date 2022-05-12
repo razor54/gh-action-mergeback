@@ -151,6 +151,8 @@ if test ${status_code} -ne 200; then
 }
 EOF
 )
+      # clean up payload
+      echo ${payload}
     else
       echo "Requesting review from ${GITHUB_ACTOR}"
       payload=$(cat <<EOF 
