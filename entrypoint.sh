@@ -137,7 +137,15 @@ if test ${status_code} -ne 200; then
       -H "Content-type: application/json" \
       -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
       -d "${payload}"
-    
+    if [[ -z ${!TEAM_REVIEWERS+set} ]]; then
+       echo "Error: Define $TEAM_REVIEWERS environment variable"
+       team_reviewers=()
+    fi
+    if [[ -z ${!REVIEWERS+set} ]]; then
+       echo "Error: Define $REVIEWERS environment variable"
+       reviewers=()
+    fi
+
     team_reviewers=($TEAM_REVIEWERS)
     reviewers=($REVIEWERS)
     if [ ${#team_reviewers[@]} -neq 0 -a ${#team_reviewers[@]} -neq 0]; then
