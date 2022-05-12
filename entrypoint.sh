@@ -56,9 +56,6 @@ EOF
         https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TMP_BRANCH} \
         -d "${payload}")
     output=$(cat ${tmp})
-    #todo:remove
-    echo $output
-    echo $status_code
     rm ${tmp}
     if test ${status_code} -ne 200; then
         echo "An error occured trying to update the temporary branch, status code ${status_code}"
@@ -72,8 +69,8 @@ fi
 echo "Creating a PR..."
 payload=$(cat <<EOF 
 {
-  "base": "${TMP_BRANCH}",
-  "head": "${TRUNK}",
+  "base": "${BASE_BRANCH}",
+  "head": "${TMP_BRANCH}",
   "title": "Merging back ${TRUNK}"
 }
 EOF
@@ -97,7 +94,7 @@ if test ${status_code} -eq 422; then #Existing PR
         --write-out "%{http_code}" \
         -H "Authorization: token ${GITHUB_TOKEN}" \
         -H "Content-type: application/json" \
-        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TRUNK}&base=${TMP_BRANCH}" )
+        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TMP_BRANCH}&base=${BASE_BRANCH}" )
     output=$(cat ${tmp})
     rm ${tmp}
     if test ${status_code} -ne 200; then
