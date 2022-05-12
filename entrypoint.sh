@@ -15,12 +15,9 @@ esac
 echo "Creating a temporary branch..."
 tmp=$(mktemp)
 TMP_BRANCH=mergeback-to-${BASE_BRANCH:=develop}
-SHA=$(curl --silent --output ${tmp} -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
-output=$(cat ${tmp})
-rm ${tmp}
+SHA=$(curl --silent -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
 #todo:remove
-echo $output
-echo $SHA
+echo "sha: $SHA"
 tmp=$(mktemp)
 payload=$(cat <<EOF 
 {
