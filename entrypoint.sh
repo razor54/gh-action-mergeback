@@ -169,5 +169,7 @@ EOF
       -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
       -d "${payload}"
       output=$(cat ${tmp})
+      #todo: remove
+      echo $output
       rm ${tmp}
 fi
