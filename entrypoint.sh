@@ -10,12 +10,58 @@ case $GITHUB_REF in
          *) echo "Not on $TRUNK (${GITHUB_REF}), do nothing."; exit 0;;
 esac 
 
+# First of all create a temporary branch
+# Useful for handling merge conflicts with protected branches
+echo "Creating a temporary branch..."
+TMP_BRANCH=mergeback-to-${BASE_BRANCH:=develop}
+SHA=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TRUNK} | jq -r '.object.sha')
+tmp=$(mktemp)
+payload=(cat <<EOF
+{
+  "ref": "refs/heads/${TMP_BRANCH}",
+  "sha": "${SHA}"
+}
+EOF
+)
+status_code=$(curl --silent --output ${tmp}  \
+    --write-out "%{http_code}" \
+    -H "Authorization: token ${GITHUB_TOKEN}" \
+    -H "Content-type: application/json" \
+    -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs
+    -d "${payload}")
+ouput=$(cat ${tmp})
+rm ${tmp}
+# Valid status codes
+# 201	Created
+# 422	Validation failed
+
+# Test if branch already existed, if so update it
+if test ${status_code} -eq 422; then #Existing branch
+    echo "Branch already exists, let's update it..."
+    tmp=$(mktemp)
+    status_code=$(curl --silent --output ${tmp} \
+        --write-out "%{http_code}" \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-type: applicaton/json" \
+        -X PATCH \
+        https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TMP_BRANCH} \
+        -d '{"sha":"${SHA}","force":true}')
+    output=$(cat ${tmp})
+    rm ${tmp}
+    if test ${status_code} -ne 200; then
+        echo "An error occured trying to update the temporary branch, status code ${status_code}"
+        echo $output | jq
+        exit 1
+    fi
+fi
+
+
 # Let's create a PR
 
 echo "Creating a PR..."
 payload=$(cat <<EOF 
 {
-  "base": "${BASE_BRANCH:=develop}",
+  "base": "${TMP_BRANCH}",
   "head": "${TRUNK}",
   "title": "Merging back ${TRUNK}"
 }
@@ -38,7 +84,7 @@ if test ${status_code} -eq 422; then #Existing PR
         --write-out "%{http_code}" \
         -H "Authorization: token ${GITHUB_TOKEN}" \
         -H "Content-type: application/json" \
-        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TRUNK}&base=${BASE_BRANCH}" )
+        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TRUNK}&base=${TMP_BRANCH}" )
     output=$(cat ${tmp})
     rm ${tmp}
     if test ${status_code} -ne 200; then
