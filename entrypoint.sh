@@ -40,6 +40,15 @@ rm ${tmp}
 if test ${status_code} -eq 422; then #Existing branch
     echo "Branch already exists, let's update it..."
     tmp=$(mktemp)
+    #todo:remove
+    echo "curl --silent --output ${tmp} \
+        --write-out "%{http_code}" \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-type: applicaton/json" \
+        -X PATCH \
+        https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/${TMP_BRANCH} \
+        -d '{"sha":"${SHA}","force":true}'"
+
     status_code=$(curl --silent --output ${tmp} \
         --write-out "%{http_code}" \
         -H "Authorization: token ${GITHUB_TOKEN}" \
