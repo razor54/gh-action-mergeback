@@ -83,8 +83,6 @@ status_code=$(curl --silent --output ${tmp} \
     -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls \
     -d "${payload}")
 output=$(cat ${tmp})
-#todo:remove
-echo "output: $output , staus: $status_code"
 rm ${tmp}
 
 if test ${status_code} -eq 422; then #Existing PR
@@ -139,9 +137,20 @@ if test ${status_code} -ne 200; then
       -H "Content-type: application/json" \
       -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
       -d "${payload}"
-
-    echo "Requesting review from ${GITHUB_ACTOR}"
-    payload=$(cat <<EOF 
+    
+    team_reviewers=($TEAM_REVIEWERS)
+    reviewers=($REVIEWERS)
+    if [ ${#team_reviewers[@]} -neq 0 -a ${#team_reviewers[@]} -neq 0]; then
+        payload=$(cat << EOF 
+{
+    "reviewers": $(jq --compact-output --null-input '$reviwers.positional' --args -- "${X[@]}"),
+    "team_reviewers": $(jq --compact-output --null-input '$team_reviewers.positional' --args -- "${X[@]}")
+}
+EOF
+    else
+)
+      echo "Requesting review from ${GITHUB_ACTOR}"
+      payload=$(cat <<EOF 
 {
   "reviewers": [
     "${GITHUB_ACTOR}"
@@ -149,6 +158,7 @@ if test ${status_code} -ne 200; then
 }
 EOF
 )
+    fi
     curl --silent --output /dev/null --fail \
       -H "Authorization: token ${GITHUB_TOKEN}" \
       -H "Content-type: application/json" \
