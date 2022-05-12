@@ -140,7 +140,7 @@ if test ${status_code} -ne 200; then
 
     team_reviewers=(${TEAM_REVIEWERS:-})
     reviewers=(${REVIEWERS:-})
-    if [ ${#team_reviewers[@]} -neq 0 -a ${#team_reviewers[@]} -neq 0 ]; then
+    if [[ ${#team_reviewers[@]} != 0 ]] || [[ ${#reviewers[@]} != 0 ]]; then
         payload=$(cat << EOF 
 {
     "reviewers": $(jq -n --arg inarr "${reviewers}" '$inarr | split(",")' --compact-output),
