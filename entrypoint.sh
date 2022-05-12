@@ -137,22 +137,14 @@ if test ${status_code} -ne 200; then
       -H "Content-type: application/json" \
       -X PATCH https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no} \
       -d "${payload}"
-    if [[ -z ${TEAM_REVIEWERS} ]]; then
-       echo "Error: Define $TEAM_REVIEWERS environment variable"
-       team_reviewers=()
-    fi
-    if [[ -z ${REVIEWERS} ]]; then
-       echo "Error: Define $REVIEWERS environment variable"
-       reviewers=()
-    fi
 
-    team_reviewers=($TEAM_REVIEWERS)
-    reviewers=($REVIEWERS)
+    team_reviewers=(${TEAM_REVIEWERS:-})
+    reviewers=(${REVIEWERS:-})
     if [ ${#team_reviewers[@]} -neq 0 -a ${#team_reviewers[@]} -neq 0]; then
         payload=$(cat << EOF 
 {
-    "reviewers": $(jq --compact-output --null-input '$reviwers.positional' --args -- "${X[@]}"),
-    "team_reviewers": $(jq --compact-output --null-input '$team_reviewers.positional' --args -- "${X[@]}")
+    "reviewers": $(jq -n --arg inarr "${reviewers}" '$inarr | split(",")' --compact-output),
+    "team_reviewers": $(jq -n --arg inarr "${team_reviewers}" '$inarr | split(",")' --compact-output)
 }
 EOF
     else
