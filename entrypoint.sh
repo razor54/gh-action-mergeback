@@ -147,8 +147,8 @@ if test ${status_code} -ne 200; then
     "team_reviewers": $(jq -n --arg inarr "${team_reviewers}" '$inarr | split(",")' --compact-output)
 }
 EOF
-    else
 )
+    else
       echo "Requesting review from ${GITHUB_ACTOR}"
       payload=$(cat <<EOF 
 {
