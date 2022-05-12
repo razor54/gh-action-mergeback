@@ -162,7 +162,7 @@ EOF
 )
     fi
     tmp=$(mktemp)
-    curl --silent --output ${tmp} --fail \
+    curl --silent --output ${tmp} \
       -H "Authorization: token ${GITHUB_TOKEN}" \
       -H "Content-type: application/json" \
       -X POST https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/requested_reviewers \
