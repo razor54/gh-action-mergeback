@@ -146,8 +146,6 @@ if test ${status_code} -ne 200; then
 
     team_reviewers=(${TEAM_REVIEWERS:-})
     reviewers=(${REVIEWERS:-})
-    echo $team_reviewers
-    echo $reviewers
     if [[ ${#team_reviewers[@]} != 0 ]] || [[ ${#reviewers[@]} != 0 ]]; then
         echo "Requesting reviews from ${team_reviewers} ${reviewers}"
         payload=$(
@@ -182,8 +180,5 @@ EOF
             -d "${payload}"
     )
     output=$(cat ${tmp})
-    #todo: remove
-    echo ${status_code}
-    echo $output
     rm ${tmp}
 fi
