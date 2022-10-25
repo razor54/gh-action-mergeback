@@ -107,7 +107,9 @@ if test ${status_code} -eq 422; then #Existing PR
         exit 1
     fi
     pr_no=$(echo $output | jq -r '.[0].number')
-    echo "Found an existing PR (#${pr_no}), let's try and use that..."
+    echo "Found an existing PR (#${pr_no}). Don't try and merge it automatically, having a PR means either a merge conflict or something wrong."
+    echo "Exiting..."
+    exit 1
 elif test ${status_code} -ne 201; then # Other failure
     echo "Creating a PR has failed with status code ${status_code}"
     echo $output | jq
