@@ -3,6 +3,14 @@ set -e
 
 TRUNK=${TRUNK_BRANCH:=master}
 
+# Assign the value of HEAD_USER to head, or HEAD_ORG if it's empty
+HEAD="${HEAD_USER:-$HEAD_ORG}"
+
+# Append a colon at the end of the assigned value, if it's not empty
+if [ -n "$HEAD" ]; then
+    HEAD="$HEAD:"
+fi
+
 # env | grep GITHUB
 
 case $GITHUB_REF in
@@ -91,14 +99,24 @@ status_code=$(curl --silent --output ${tmp} \
 output=$(cat ${tmp})
 rm ${tmp}
 
-if test ${status_code} -eq 422; then #Existing PR
+if test ${status_code} -eq 422; then #Existing PR or no diff
+    err_message=$(echo "$output" | jq -r '.errors[0].message')
+    # Define the regular expression pattern to match
+    pattern="^No commits between (.+) and (.+)$"
+
+    # Validate if the message matches the pattern using regex
+    if [[ "$err_message" =~ $pattern ]]; then
+        echo $err_message
+        exit 0
+    fi
+
     echo "A PR already exists, let's find its number..."
     tmp=$(mktemp)
     status_code=$(curl --silent --output ${tmp} \
         --write-out "%{http_code}" \
         -H "Authorization: token ${GITHUB_TOKEN}" \
         -H "Content-type: application/json" \
-        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${TMP_BRANCH}&base=${BASE_BRANCH}")
+        -X GET "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?head=${HEAD}${TMP_BRANCH}&base=${BASE_BRANCH}")
     output=$(cat ${tmp})
     rm ${tmp}
     if test ${status_code} -ne 200; then
