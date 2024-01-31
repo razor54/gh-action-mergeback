@@ -147,6 +147,20 @@ status_code=$(curl --silent --output ${tmp} \
 output=$(cat ${tmp})
 rm ${tmp}
 
+if test ${status_code} -eq 405; then
+    # Retry the merge with a 2 second wait
+    echo "Merge failed with status code 405. Retrying in 2 seconds..."
+    sleep 2
+    tmp=$(mktemp)
+    status_code=$(curl --silent --output ${tmp} \
+        --write-out "%{http_code}" \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-type: application/json" \
+        -X PUT https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr_no}/merge)
+    output=$(cat ${tmp})
+    rm ${tmp}
+fi
+
 if test ${status_code} -ne 200; then
     echo "The merge has failed with status code ${status_code}"
     echo $output | jq
