@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.21
 
 LABEL "com.github.actions.name"="Merge back"
 LABEL "com.github.actions.description"="Merge back master to develop"
